@@ -1,0 +1,33 @@
+# blinky.zen — LED indicator board
+# Circuit: VCC --[R1 330Ω]-- LED_ANODE --[D1 LED]-- GND
+
+load("@stdlib/properties.zen", "Layout")
+
+Resistor = Module("@stdlib/generics/Resistor.zen")
+Led      = Module("@stdlib/generics/Led.zen")
+
+# Define nets (wires)
+vcc       = Net("VCC")
+gnd       = Net("GND")
+led_anode = Net("LED_ANODE")
+
+# 330Ω resistor limits current to ~10mA so the LED doesn't burn out
+Resistor(
+    name    = "R1",
+    value   = "330ohm",
+    package = "0402",
+    P1      = vcc,
+    P2      = led_anode,
+)
+
+# Red LED, 0402 SMD package
+Led(
+    name    = "D1",
+    color   = "red",
+    package = "0402",
+    A       = led_anode,
+    K       = gnd,
+)
+
+# Tells compiler where to put generated KiCad files
+Layout("layout", "layout/")

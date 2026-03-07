@@ -1,0 +1,6 @@
+# pcb.toml
+[workspace]
+members = ["."]
+
+[dependencies]
+stdlib = { git = "https://github.com/diodeinc/stdlib" }
