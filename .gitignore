@@ -1,0 +1,5 @@
+output/
+*.log
+*.cir
+*.tmp
+.DS_Store

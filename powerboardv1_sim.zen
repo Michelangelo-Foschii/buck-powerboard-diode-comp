@@ -1,0 +1,64 @@
+# ```pcb
+# [workspace]
+# pcb-version = "0.3"
+# ```
+
+load("@stdlib/units.zen", "Voltage")
+load("@stdlib/interfaces.zen", "Power", "Ground")
+
+Capacitor = Module("@stdlib/generics/Capacitor.zen")
+Inductor  = Module("@stdlib/generics/Inductor.zen")
+Diode     = Module("@stdlib/generics/Diode.zen")
+
+vin_28   = Power("VIN_28V", voltage=Voltage("28V"))
+vout_3v3 = Power("VOUT_3V3", voltage=Voltage("3.3V"))
+gnd      = Ground("GND")
+sw       = Net("SW_3V3")
+
+Capacitor(
+    name="CIN1",
+    value="22uF",
+    package="1210",
+    voltage="50V",
+    dielectric="X7R",
+    mpn="CGA4J1X7R1H226M125AC",
+    manufacturer="TDK",
+    P1=vin_28,
+    P2=gnd,
+)
+
+Capacitor(
+    name="CIN2",
+    value="100nF",
+    package="0402",
+    P1=vin_28,
+    P2=gnd,
+)
+
+Diode(
+    name="D1",
+    package="SMC",
+    variant="Schottky",
+    A=gnd,
+    K=sw,
+)
+
+Inductor(
+    name="L1",
+    value="5.6uH",
+    package="1210",
+    P1=sw,
+    P2=vout_3v3,
+)
+
+Capacitor(
+    name="COUT1",
+    value="10uF",
+    package="1210",
+    voltage="10V",
+    dielectric="X7R",
+    mpn="C3216X7R1A106K160AC",
+    manufacturer="TDK",
+    P1=vout_3v3,
+    P2=gnd,
+)

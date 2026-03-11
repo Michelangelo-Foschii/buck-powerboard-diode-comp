@@ -1,0 +1,298 @@
+# ```pcb
+# [workspace]
+# pcb-version = "0.3"
+# ```
+
+load("@stdlib/units.zen", "Voltage")
+load("@stdlib/interfaces.zen", "Power", "Ground")
+load("@stdlib/board_config.zen", "Board")
+
+Capacitor = Module("@stdlib/generics/Capacitor.zen")
+Resistor  = Module("@stdlib/generics/Resistor.zen")
+Inductor  = Module("@stdlib/generics/Inductor.zen")
+Diode     = Module("@stdlib/generics/Diode.zen")
+
+# ------------------------------------------------------------
+# Nets
+# ------------------------------------------------------------
+
+vin_28   = Power("VIN_28V", voltage=Voltage("28V"))
+vout_3v3 = Power("VOUT_3V3", voltage=Voltage("3.3V"))
+gnd      = Ground("GND")
+
+sw   = Net("SW_3V3")
+boot = Net("BOOT_3V3")
+fb   = Net("FB_3V3")
+comp = Net("COMP_3V3")
+en   = Net("EN_3V3")
+rt   = Net("RT_3V3")
+
+# ------------------------------------------------------------
+# Symbols
+# ------------------------------------------------------------
+
+tps54340_sym = Symbol(
+    definition = [
+        ("BOOT", ["1"]),
+        ("VIN",  ["2"]),
+        ("EN",   ["3"]),
+        ("RT",   ["4"]),
+        ("FB",   ["5"]),
+        ("COMP", ["6"]),
+        ("GND",  ["7"]),
+        ("SW",   ["8"]),
+        ("PAD",  ["9"]),
+    ]
+)
+
+conn_2_sym = Symbol(
+    definition = [
+        ("1", ["1"]),
+        ("2", ["2"]),
+    ]
+)
+
+tp_sym = Symbol(
+    definition = [
+        ("TP", ["1"]),
+    ]
+)
+
+# ------------------------------------------------------------
+# Main regulator
+# ------------------------------------------------------------
+
+Component(
+    name = "U1",
+    symbol = tps54340_sym,
+    footprint = "footprints/TPS54340_SOIC8EP.kicad_mod",
+    pins = {
+        "BOOT": boot,
+        "VIN":  vin_28,
+        "EN":   en,
+        "RT":   rt,
+        "FB":   fb,
+        "COMP": comp,
+        "GND":  gnd,
+        "SW":   sw,
+        "PAD":  gnd,
+    },
+    manufacturer = "Texas Instruments",
+    mpn = "TPS54340",
+    prefix = "U",
+)
+
+# ------------------------------------------------------------
+# Board-level input / output connectors
+# Replace these filenames with the exact local footprints you create
+# ------------------------------------------------------------
+
+Component(
+    name = "J1",
+    symbol = conn_2_sym,
+    footprint = "footprints/PinHeader_1x02.kicad_mod",
+    pins = {
+        "1": vin_28,
+        "2": gnd,
+    },
+    manufacturer = "Generic",
+    mpn = "INPUT_2PIN",
+    prefix = "J",
+)
+
+Component(
+    name = "J2",
+    symbol = conn_2_sym,
+    footprint = "footprints/PinHeader_1x02.kicad_mod",
+    pins = {
+        "1": vout_3v3,
+        "2": gnd,
+    },
+    manufacturer = "Generic",
+    mpn = "OUTPUT_2PIN",
+    prefix = "J",
+)
+
+# ------------------------------------------------------------
+# Power stage
+# ------------------------------------------------------------
+
+Capacitor(
+    name="CBOOT",
+    value="100nF",
+    package="0402",
+    P1=boot,
+    P2=sw,
+)
+
+Capacitor(
+    name="CIN1",
+    value="22uF",
+    package="1210",
+    voltage="50V",
+    dielectric="X7R",
+    mpn="CGA4J1X7R1H226M125AC",
+    manufacturer="TDK",
+    P1=vin_28,
+    P2=gnd,
+)
+
+Capacitor(
+    name="CIN2",
+    value="100nF",
+    package="0402",
+    P1=vin_28,
+    P2=gnd,
+)
+
+Diode(
+    name="D1",
+    package="SMC",
+    variant="Schottky",
+    A=gnd,
+    K=sw,
+)
+
+Inductor(
+    name="L1",
+    value="5.6uH",
+    package="1210",
+    P1=sw,
+    P2=vout_3v3,
+)
+
+Capacitor(
+    name="COUT1",
+    value="10uF",
+    package="1210",
+    voltage="10V",
+    dielectric="X7R",
+    mpn="C3216X7R1A106K160AC",
+    manufacturer="TDK",
+    P1=vout_3v3,
+    P2=gnd,
+)
+
+# ------------------------------------------------------------
+# Feedback / enable / timing / compensation
+# ------------------------------------------------------------
+
+Resistor(
+    name="RFB_TOP",
+    value="100kohm",
+    package="0402",
+    P1=vout_3v3,
+    P2=fb,
+)
+
+Resistor(
+    name="RFB_BOT",
+    value="32.4kohm",
+    package="0402",
+    P1=fb,
+    P2=gnd,
+)
+
+Resistor(
+    name="REN_TOP",
+    value="365kohm",
+    package="0402",
+    P1=vin_28,
+    P2=en,
+)
+
+Resistor(
+    name="REN_BOT",
+    value="100kohm",
+    package="0402",
+    P1=en,
+    P2=gnd,
+)
+
+Resistor(
+    name="RRT",
+    value="100kohm",
+    package="0402",
+    P1=rt,
+    P2=gnd,
+)
+
+Resistor(
+    name="RCOMP",
+    value="10kohm",
+    package="0402",
+    P1=comp,
+    P2=gnd,
+)
+
+Capacitor(
+    name="CCOMP",
+    value="10nF",
+    package="0402",
+    P1=comp,
+    P2=gnd,
+)
+
+# ------------------------------------------------------------
+# Test points
+# Replace this filename with the exact local footprint you create
+# ------------------------------------------------------------
+
+Component(
+    name = "TP1",
+    symbol = tp_sym,
+    footprint = "footprints/TestPoint.kicad_mod",
+    pins = {
+        "TP": vin_28,
+    },
+    manufacturer = "Generic",
+    mpn = "TP_VIN",
+    prefix = "TP",
+)
+
+Component(
+    name = "TP2",
+    symbol = tp_sym,
+    footprint = "footprints/TestPoint.kicad_mod",
+    pins = {
+        "TP": gnd,
+    },
+    manufacturer = "Generic",
+    mpn = "TP_GND",
+    prefix = "TP",
+)
+
+Component(
+    name = "TP3",
+    symbol = tp_sym,
+    footprint = "footprints/TestPoint.kicad_mod",
+    pins = {
+        "TP": sw,
+    },
+    manufacturer = "Generic",
+    mpn = "TP_SW",
+    prefix = "TP",
+)
+
+Component(
+    name = "TP4",
+    symbol = tp_sym,
+    footprint = "footprints/TestPoint.kicad_mod",
+    pins = {
+        "TP": vout_3v3,
+    },
+    manufacturer = "Generic",
+    mpn = "TP_3V3",
+    prefix = "TP",
+)
+
+
+# ------------------------------------------------------------
+# Board
+# ------------------------------------------------------------
+
+Board(
+    name = "powerboardv1",
+    layers = 4,
+    layout_path = "layout/powerboardv1"
+)

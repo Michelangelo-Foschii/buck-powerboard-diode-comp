@@ -1,26 +1,33 @@
-load("@stdlib/properties.zen", "Layout")
+# ```pcb
+# [workspace]
+# pcb-version = "0.3"
+# ```
 
 Resistor = Module("@stdlib/generics/Resistor.zen")
-Led      = Module("@stdlib/generics/Led.zen")
+Led = Module("@stdlib/generics/Led.zen")
 
-vcc       = Net("VCC")
-gnd       = Net("GND")
+vcc = Power("VCC")
+gnd = Ground("GND")
 led_anode = Net("LED_ANODE")
 
 Resistor(
-    name    = "R1",
-    value   = "330ohm",
+    name = "R1",
+    value = "1kohm",
     package = "0402",
-    P1      = vcc,
-    P2      = led_anode,
+    P1 = vcc,
+    P2 = led_anode
 )
 
 Led(
-    name    = "D1",
-    color   = "red",
+    name = "D1",
     package = "0402",
-    A       = led_anode,
-    K       = gnd,
+    color = "red",
+    A = led_anode,
+    K = gnd
 )
 
-Layout("layout", "layout/")
+Board(
+    name = "blinky",
+    layers = 4,
+    layout_path = "layout/blinky"
+)

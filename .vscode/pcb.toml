@@ -4,3 +4,5 @@ members = ["."]
 
 [dependencies]
 stdlib = { git = "https://github.com/diodeinc/stdlib" }
+
+"github.com/diodeinc/registry/reference/TPS54331" = "1.0"
