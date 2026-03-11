@@ -14,7 +14,7 @@ The current layout captures the board structure and component integration, thoug
 A simplified ngspice transient simulation was used to verify the expected switching behavior of the buck converter. The simulation captures startup behavior, output settling, and the switching waveform at the regulator node.
 
 ### Input and Output Voltage
-![VIN and VOUT](simulation/results/vin_vout.png)
+![VIN and VOUT](docs/vin_vout.png)
 
 
 ## Project Motivation
